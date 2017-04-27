@@ -3,9 +3,9 @@ unit Main;
 interface
 
 uses
-	IOCPPool,
-	Synsock, BlckSock, StdCtrls, Controls, Classes,
-	AdoDb, SysUtils, Windows, Messages, Forms;
+  IOCPPool,
+  Synsock, BlckSock, StdCtrls, Controls, Classes,
+  AdoDb, SysUtils, Windows, Messages, Forms;
 
 type
   TForm1 = class(TForm)
@@ -13,25 +13,25 @@ type
     txtCurWorks: TEdit;
     txtActThreads: TEdit;
     txtCurThreads: TEdit;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
+    Label1:  TLabel;
+    Label2:  TLabel;
+    Label3:  TLabel;
     memErros: TMemo;
     procedure Button1Click(Sender: TObject);
-    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
   private
     { Private declarations }
-	bAtivo: boolean;
-	procedure AppOnUpdate(nActThreads, nCurWorks, nCurThreads: integer);
-	procedure AppOnProcess(ASock: TTCPBlockSocket; ADBConnection: TAdoConnection);
-	procedure AppOnError(AE: Exception);
+    bAtivo: boolean;
+    procedure AppOnUpdate(nActThreads, nCurWorks, nCurThreads: integer);
+    procedure AppOnProcess(ASock: TTCPBlockSocket; ADBConnection: TAdoConnection);
+    procedure AppOnError(AE: Exception);
   public
     { Public declarations }
   end;
 
 var
   Form1: TForm1;
-  TCP:  TTCPDaemon;
+  TCP: TTCPDaemon;
 
 implementation
 
@@ -40,80 +40,66 @@ implementation
 procedure TForm1.Button1Click(Sender: TObject);
 begin
 
-if bAtivo then begin
+  if bAtivo then
+  begin
 
-	Tcp.Stop;
-	FreeAndnil(Tcp);
+    Tcp.Stop;
+    FreeAndnil(Tcp);
     Button1.Caption := 'Start';
-	bAtivo := false;
+    bAtivo := false;
 
-end else begin
+  end
+  else
+  begin
 
-	Tcp := TTcpDaemon.Create;
+    Tcp := TTcpDaemon.Create;
 
-	Tcp.OnUpdate := AppOnUpdate;
-	Tcp.OnProcess := AppOnProcess;
-	Tcp.OnError := AppOnError;
+    Tcp.OnUpdate := AppOnUpdate;
+    Tcp.OnProcess := AppOnProcess;
+    Tcp.OnError  := AppOnError;
 
-	Tcp.Start;
+    Tcp.Start;
 
     Button1.Caption := 'Stop';
-	bAtivo := true;
+    bAtivo := true;
 
-end;
-
+  end;
 
 end;
 
 procedure TForm1.AppOnUpdate(nActThreads, nCurWorks, nCurThreads: integer);
 begin
-
-try
-
-	txtCurWorks.Text := IntToStr(nCurWorks);
-	txtActThreads.Text := IntToStr(nActThreads);
-	txtCurThreads.Text := IntToStr(nCurThreads);
-
-except
-end;
-
+  try
+    txtCurWorks.Text := IntToStr(nCurWorks);
+    txtActThreads.Text := IntToStr(nActThreads);
+    txtCurThreads.Text := IntToStr(nCurThreads);
+  except
+  end;
 end;
 
 procedure TForm1.AppOnProcess(ASock: TTCPBlockSocket; ADBConnection: TAdoConnection);
 var
-	s: string;
-
+  s: string;
 begin
-
-with ADBConnection, ASock do begin
-
-	try
-
-		s := RecvPacket(60000);
-		SendString(s);
-
-	except
-
-		raise;
-
-	end;
-
-end;
-
+  with ADBConnection, ASock do
+  begin
+    try
+      s := RecvPacket(60000);
+      SendString(s);
+    except
+      raise;
+    end;
+  end;
 end;
 
 procedure TForm1.AppOnError(AE: Exception);
 begin
-
-memErros.Lines.Add(AE.Message);
-
+  memErros.Lines.Add(AE.Message);
 end;
 
-procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+procedure TForm1.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
-
-CanClose := not Assigned(Tcp);
-
+  CanClose := not Assigned(Tcp);
 end;
 
 end.

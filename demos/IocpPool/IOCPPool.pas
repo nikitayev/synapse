@@ -482,27 +482,18 @@ begin
         //----- Verifica se o tempo expirou !
         if GetLastError = WAIT_TIMEOUT then
         begin
-
           FCRTSection.Enter;
-
           try
-
             if (FCurThreadsInPool > FMinThreadsInPool) then
               Terminate;
-
           finally
-
             FCRTSection.Leave;
-
           end;
-
         end
         else
         begin
-
           Terminate;
           Break;
-
         end;
 
       end
@@ -530,12 +521,10 @@ begin
 
             if (FTcpDaemon.FActThreadsInPool = FTcpDaemon.FCurThreadsInPool) then
             begin
-
               Thread := TWorkerThread.Create(FTcpDaemon, FTcpDaemon.ConnectionString);
               FWorkerThreads.Add(Thread);
               IncCurThreadsInPool;
               Synchronize(SyncAtualiza);
-
             end;
 
           end;
@@ -556,38 +545,28 @@ begin
 
             //--- Maldito try/except/finally !
             try
-
               Socket := ClientSocket;
               GetSins;
               setLinger(true, 10000);
 
               if Assigned(FOnProcessEvent) then
                 FOnProcessEvent(FWorkerSocket, FDBConnection);
-
             except
-
               on e: Exception do
               begin
-
                 FCRTSection.Enter;
-
                 try
                   FErrorException := e;
                 finally
                   FCRTSection.Leave;
                 end;
-
                 Synchronize(SyncErros);
-
               end;
-
             end;
 
           finally
-
             DecActThreadsInPool;
             CloseSocket;
-
           end;
 
         end;
@@ -609,7 +588,6 @@ begin
     FCRTSection.Enter;
 
     try
-
       nContador := FWorkerThreads.IndexOf(Self);
 
       if nContador >= 0 then
@@ -620,11 +598,8 @@ begin
 
       if FCurThreadsInPool = 0 then
         FTerminateEvent.SetEvent;
-
     finally
-
       FCRTSection.Leave;
-
     end;
 
     CoUninitialize();

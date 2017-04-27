@@ -138,10 +138,10 @@ end;
 destructor TTCPDaemon.Destroy;
 begin
 
-  FWorkerThreads.Free;
-  FCRTSection.Free;
-  FTerminateEvent.Free;
-  FServiceTerminateEvent.Free;
+  FreeAndNil(FWorkerThreads);
+  FreeAndNil(FCRTSection);
+  FreeAndNil(FTerminateEvent);
+  FreeAndNil(FServiceTerminateEvent);
 
   inherited;
 
@@ -347,22 +347,18 @@ end;
 
 constructor TAcceptThread.Create;
 begin
-
   FTcpDaemon := ATcpDaemon;
   FPort := APort;
   FSock := TTCPBlockSocket.Create;
-  FreeOnTerminate := true;
+  //FreeOnTerminate := true;
 
   inherited Create(false);
-
 end;
 
 destructor TAcceptThread.Destroy;
 begin
-
-  FSock.Free;
   inherited;
-
+  FreeAndNil(FSock);
 end;
 
 procedure TAcceptThread.Execute;
@@ -499,6 +495,7 @@ begin
       end
       else
       begin
+        ClientSocket := TSocket(zClientSocket);
 
         //----- Verifica se o servidor esta sendo destruido !
         if (ClientSocket = KILL_THREAD) then
@@ -530,9 +527,7 @@ begin
           end;
 
         finally
-
           FCRTSection.Leave;
-
         end;
 
         FWorkerSocket := TTCPBlockSocket.Create;
@@ -582,7 +577,7 @@ begin
     if Assigned(FDBConnection) then
     begin
       FDBConnection.Close;
-      FDBConnection.Free;
+      FreeAndNil(FDBConnection);
     end;
 
     FCRTSection.Enter;

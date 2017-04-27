@@ -6,7 +6,8 @@ uses
   ActiveX,
   Forms,
   Main in 'Main.pas' {Form1},
-  IOCPPool in 'IOCPPool.pas';
+  IOCPPool in 'IOCPPool.pas',
+  blcksock in '..\..\blcksock.pas';
 
 {$R *.RES}
 

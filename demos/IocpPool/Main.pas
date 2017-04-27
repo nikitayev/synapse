@@ -77,15 +77,35 @@ begin
   end;
 end;
 
+function IsSocketAlive(ASocket: TTCPBlockSocket): Boolean;
+begin
+  //ASocket.CanRead();
+  Result := (ASocket.Socket <> INVALID_SOCKET) and (
+    (ASocket.LastError = WSAETIMEDOUT) or (ASocket.LastError = 0));
+end;
+
 procedure TForm1.AppOnProcess(ASock: TTCPBlockSocket; ADBConnection: TAdoConnection);
 var
-  s: string;
+  i: Integer;
+  zBytesCount: Integer;
+  b: byte;
 begin
-  with ADBConnection, ASock do
+  with ASock do
   begin
     try
-      s := RecvPacket(60000);
-      SendString(s);
+      //Sleep(200);
+      zBytesCount := WaitingData;
+      while (IsSocketAlive(ASock)) do
+      begin
+        for I := 0 to zBytesCount - 1 do
+        begin
+          b := RecvByte(100);
+          SendByte(b);
+        end;
+        zBytesCount := WaitingData;
+        if (zBytesCount = 0) then
+          RecvByte(0)
+      end;
     except
       raise;
     end;
